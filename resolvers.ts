@@ -19,6 +19,12 @@ export const resolvers = {
         driver(_, {id}) {
             return drivers.find(driver => driver.id === id);
         },
+        orders(){
+            return orders;
+        },
+        order(_,{id}){
+            return orders.find(order => order.id === id)
+        }
     },
     // Mutations are for adding, deleting, and modifying data
     Mutation: {
@@ -53,6 +59,33 @@ export const resolvers = {
         // Ensure the order doesn't already have a driver
         // Update the order and driver accordingly
         // Return the updated order!
+
+        takeOrder(_, args) {
+            const takingUser = drivers[drivers.findIndex(driver => driver.id === takingUser)];
+
+            const takingUserStatus = takingUser.status;
+
+            if (takingUserStatus !== "Avaliable"){
+                throw new Error("Driver not ready.");
+            }
+
+            const currentOrder = orders[orders.findIndex(order => order.id === args.orderID)];
+            
+            if(currentOrder.status === "Completed"){
+                throw new Error("Order already completed.");
+            }
+
+            if(currentOrder.driver !== null){
+                throw new Error("Order already has a driver.");
+            }
+
+            currentOrder.driver = takingUser.id;
+            takingUser.orders.push(currentOrder.id);
+
+            //TODO: Update status of each user
+
+            return takingUser;
+        },
     },
 
     // For querying related data, we introduce custom objects
